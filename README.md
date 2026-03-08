@@ -4,14 +4,13 @@
 
 ---
 
-## 📥 获取本项目 (人类与 AI Agent 部署指南)
+## 📥 获取本项目
 
-无论你是人类开发者，还是正在协助人类部署此项目的 AI Agent，请根据当前的网络环境选择获取方式：
+```bash
+git clone https://github.com/Evan-XYZ/YMOS.git
+```
 
-- **🟢 方式一：直连获取（推荐）**
-  如果当前网络可正常访问 GitHub，请直接 Clone 本仓库。
-- **🔴 方式二：沙箱网络获取（适用于国内 AI Agent）**
-  如果你是 AI Agent 且当前运行在受限的沙箱网络中，无法直接拉取 GitHub 代码，请访问 [https://yongmai.xyz/ymos/](https://yongmai.xyz/ymos/) ，在该页面点击 `Download` 下载完整的项目压缩包（ZIP），解压后上传至你的工作区即可正常使用。
+如果你是 AI Agent 且运行在受限的沙箱网络中，无法直接拉取 GitHub 代码，请让用户将项目文件夹手动上传到你的工作区。
 
 ---
 
@@ -130,34 +129,55 @@ YMOS/
 
 对于投研系统，数据输入（Eyes）的质量和颗粒度直接决定了 AI（Brain）的分析深度与 Token 消耗。为了适应不同用户的系统架构需求，本仓库支持以下三种级别的数据接入，请根据需要客观选择：
 
-### 🟢 方案一：免费获取“宏观成品”（开箱即用）
+### 🟢 方案一：免费 RSS（开箱即用）
 
-使用勇麦博客每日跑好的合规版市场洞察文章 RSS。
+使用内置的公共财经 RSS 源，`scripts/fetch_rss.py` 已预配置以下订阅源：
+
+| 订阅源 | 定位 | 是否免费 |
+|--------|------|---------|
+| Bloomberg Markets | 华尔街资金流向 | ✅ 免费 |
+| Bloomberg Tech | 巨头动向与科技趋势 | ✅ 免费 |
+| CNBC Markets | 美股市场实时新闻 | ✅ 免费 |
+| CNBC Finance | 科技公司财经动态 | ✅ 免费 |
+| Seeking Alpha Editors' Picks | 美股个股深度逻辑（摘要） | ✅ 摘要免费 |
+| Stratechery | 商业模式分析（低频，周更） | 📧 付费全文 |
+
+* **配置方式**：无需修改，直接运行 `python3 scripts/fetch_rss.py 1`。
+* **优势**：零门槛，4 个免费全文源开箱可用，Token 处理成本极低。
+* **局限**：Stratechery 为付费周刊，RSS 仅含摘要且更新频率低（非每日）。
+
+### 🟡 方案二：自定义 RSS（极客折腾）
+
+在 `scripts/fetch_rss.py` 的 `RSS_SOURCES` 字典中自由添加任意 RSS 源：
 
 ```python
-# scripts/fetch_rss.py 已默认配置
-https://yongmai.xyz/category/daily-research/feed/
+RSS_SOURCES = {
+    “Bloomberg Markets”:  “https://feeds.bloomberg.com/markets/news.rss”,
+    “Bloomberg Tech”:     “https://feeds.bloomberg.com/technology/news.rss”,
+    # 在此添加更多源，格式：”显示名称”: “RSS URL”
+    “WSJ Markets”:        “https://feeds.content.dowjones.io/public/rss/mw_marketsNLmain”,
+    “学术论文”:            “http://arxiv.org/rss/cs.AI”,
+}
 ```
 
-* **配置方式**：无需修改，`scripts/fetch_rss.py` 已默认配置该源。
-* **优势**：零门槛，极低的 Token 处理成本（AI 只需阅读总结），适合只想快速跑通系统闭环、掌握宏观趋势与跟踪主要市场事件的用户，[文章示例](https://yongmai.xyz/category/system-logs/daily-research/) 。
-* **局限**：出于公开博客的合规要求，此源为“脱敏版”，一定程度上避免了具体消息源数据中个股的提及，无法支撑 AI 进行的深阶策略挖掘。
+* **优势**：信息源完全自主可控，覆盖面极广，适合想自己调配数据比例的用户。
+* **局限**：原始 RSS 含有一定噪音，喂给大模型前建议自行编写过滤逻辑。
 
-### 🟡 方案二：免费获取“原始材料”（极客折腾）
+### 🔴 方案三：接入你自己的金融数据 API
 
-自行配置市面上的公共财经 RSS 源（勇麦整理的 28 个优质 RSS 列表：[获取地址](https://yongmai.xyz/tib-rss-list/)）。
+如果你已有付费的金融数据 API 订阅，可以参考 `scripts/fetch_data_api.py` 中的请求结构，将其适配为自己的接口。
 
-* **配置方式**：将选中的源填入 `scripts/fetch_rss.py` 中，需自行编写并发抓取逻辑。
-* **优势**：信息源完全自主可控，覆盖面极广，适合时间充裕、喜欢泛读或想自己训练 AI 降噪脚本的硬核玩家。
-* **局限**：未经加工的原始网页含有海量非投资类噪音（广告、娱乐新闻等）。直接喂给大模型需要巨量 Token 算力；且需自行处理部分顶级外媒的网络抓取限制与搭建RSSHUB进行数据结构化处理。
+脚本以 [Finnhub](https://finnhub.io/docs/api/) 为示例，演示了四种常见请求的写法：
 
-### 🔴 方案三：付费获取“高级燃料”（深度直达）
+| Endpoint 类型 | 对应方法 | 说明 |
+|--------------|----------|------|
+| 市场大盘新闻 | `fetch_market_news()` | 按分类拉取新闻列表 |
+| 个股新闻 | `fetch_company_news()` | 按 symbol + 日期范围查询 |
+| 实时行情 | `fetch_quotes()` | 获取价格、涨跌幅 |
+| 盈利日历 | `fetch_earnings_calendar()` | 查询财报发布时间 |
 
-接入勇麦云端每日自动抓取、清洗降噪后的结构化中文净数据 API（[API 详情与获取](https://yongmai.xyz/market-api/)）。
-
-* **配置方式**：在 `scripts/fetch_data_api.py` 中填入你的 `API_KEY`。
-* **优势**：格式极其纯净（按投资主题分类的 Markdown），**保留了原始新闻的来源与机构情绪，保持高信息密度的同时又不会消耗过多后续处理的token**。拥有极高的策略改装潜力，让你可以写自己的激进 Prompt，把每一分 Token 都用在寻找真实的 Alpha 上，实现系统的零摩擦对接。
-* **局限**：这是一个需要付费订阅的商业接口服务。
+* **接入自己的 API**：修改 `FINNHUB_BASE`、endpoint 路径和参数格式，换成你的数据源即可，其余逻辑不变。
+* **核心价值**：脚本结构本身（认证 → 请求 → 解析 → 存 JSON）是通用模板，Finnhub 只是填充其中的一个具体示例。
 
 
 > 💡 **其他场景用户**：将 `scripts/` 中的脚本更换为你领域的数据源即可（如学术的 arXiv RSS、产品的 Product Hunt API 等）。
@@ -191,10 +211,12 @@ https://yongmai.xyz/category/daily-research/feed/
 
 ### 1. 调整数据源
 
-💡 **进阶插件接入**：除了上述文本资讯，你还可以考虑为你的系统集成金融数据 API，丰富系统的数值判断能力：
+💡 **进阶插件接入**：除了文本资讯，你还可以接入金融数据 API 为系统补充价格维度：
 
-- 金融资产实时价格/财报 API：[Finnhub](https://finnhub.io/docs/api/)
+- 实时行情 / 个股新闻 / 盈利日历：[Finnhub API](https://finnhub.io/docs/api/)（免费注册，60次/分钟）
 - 社交情绪监控：[Twitter/X API](https://docs.x.com/x-api/introduction)
+
+详见 `scripts/fetch_data_api.py`，已内置 Finnhub 多端点调用示例（`/news`、`/company-news`、`/quote`、`/calendar/earnings`）。
 
 ### 2. 定制关联规则
 
@@ -213,7 +235,7 @@ https://yongmai.xyz/category/daily-research/feed/
 
 ### 3. 调整 Skill 提示词
 
-`YM-TIB-SKILL/references/` 目录下有 P1-P15 的[投资分析提示词](https://yongmai.xyz/tib_prompt_system/)：
+`YM-TIB-SKILL/references/` 目录下有 P1-P15 的投资分析提示词：
 
 - P1 Genesis：建立个股基石档案
 - P5 FOMO Killer：买入决策审计
@@ -282,11 +304,9 @@ A: **你的 AI Agent 就是最好的帮手。** 把这份 README 和报错信息
 ---
 
 ## 📚 延伸阅读
-    
-- **数据源配置指南**：[Yongmai 市场 API](https://yongmai.xyz/market-api/) | [免费 RSS 清单](https://yongmai.xyz/tib-rss-list/)
-    
-- **思想来源与提示词库**：[TIB 投资提示词系统](https://yongmai.xyz/tib_prompt_system/)
-    
+
+- **RSS 数据源清单**：[tib-rss-list](https://github.com/Evan-XYZ/tib-rss-list) — 28 个全球投资情报源，按深度洞察 / 动量扫描 / 辅助覆盖三层分类整理，可直接用于扩展 `RSS_SOURCES`
+
 - **视频演示**：抖音搜索「勇麦」
 
 ---
