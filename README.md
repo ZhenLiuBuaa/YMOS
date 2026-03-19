@@ -1,6 +1,13 @@
-# YMOS — 勇麦投资操作系统
+# YMOS V3 — 勇麦投资操作系统
+
+**Yongmai Operating System** · 自然语言驱动的人机协作投资研究系统
+
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/Evan-XYZ/YMOS/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > 以市场触发为起点、以提示词软路由为中枢、以状态机与个股知识库为记忆层、以 Human 最终决策为落点的人机协作投资操作系统。
+
+> 🔄 **V3 是首个完整公开版本。** V1 为早期投研知识库（已归档至 [`v1-legacy` 分支](https://github.com/Evan-XYZ/YMOS/tree/v1-legacy)），V2 为内部迭代版本。
 
 ---
 
