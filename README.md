@@ -362,7 +362,7 @@ YMOS 不是装上就完美的成品——它更像一个**需要你跟 AI 一起
 
 YMOS 可以在任何支持文件读写和代码执行的 AI Agent 环境中运行。推荐方案：
 
-- **首选（本地方案）**：[OpenClaw](https://openclaw.com)（龙虾）—— 本地运行、数据不出本机、支持定时任务和 subagent 编排。也支持云方案的 Claw 系列产品，原理相同。
+- **首选（本地方案）**：OpenClaw（龙虾）—— 本地运行、数据不出本机、支持定时任务和 subagent 编排。也支持云方案的 Claw 系列产品，原理相同。
 - **订阅会员方案**：Claude Code / Claude Cowork、ChatGPT Codex —— 都支持文件系统操作和定时任务
 - **其他支持的环境**：任何能读写 Markdown 文件 + 运行 Python 脚本的 AI Agent 平台
 
