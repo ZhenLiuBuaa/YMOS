@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YMOS Dashboard - 2026-04-12</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 0; margin-bottom: 8px;
+}
+.topbar-left { font-size: 20px; font-weight: 700; color: #333; }
+.topbar-right { font-size: 15px; color: #666; }
+h2 { font-size: 18px; margin-bottom: 16px; color: #333; }
+h3 { font-size: 16px; margin: 12px 0 8px; color: #444; }
+
+/* Status */
+.status-row { display: flex; justify-content: space-between; align-items: center; }
+.status-left { display: flex; align-items: center; gap: 12px; }
+.status-icon { font-size: 28px; }
+.status-text { font-size: 17px; font-weight: 600; }
+.status-sub { font-size: 14px; color: #666; }
+.status-right { text-align: right; }
+.status-num { font-size: 32px; font-weight: 700; color: #333; }
+.status-label { font-size: 13px; color: #888; }
+
+/* Workflow */
+.workflow-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+.step { border-radius: 8px; padding: 16px; text-align: center; font-size: 14px; }
+.step-done { background: #e8f5e9; border: 1px solid #c8e6c9; }
+.step-done .step-icon { color: #43a047; }
+.step-pending { background: #f5f5f5; border: 1px solid #e0e0e0; }
+.step-name { font-weight: 600; margin: 8px 0 4px; font-size: 15px; }
+.step-status { font-size: 13px; color: #666; }
+.workflow-progress { font-size: 14px; color: #888; text-align: right; }
+
+/* Signal table */
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+th { text-align: left; padding: 10px 12px; background: #f8f8f6; border-bottom: 2px solid #e0e0e0; font-weight: 600; font-size: 13px; color: #666; }
+td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+tr:last-child td { border-bottom: none; }
+
+/* Brief */
+.brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.brief-do { background: #e8f5e9; border-radius: 8px; padding: 16px; }
+.brief-dont { background: #ffebee; border-radius: 8px; padding: 16px; }
+.brief-title { font-weight: 600; margin-bottom: 8px; font-size: 15px; }
+.brief-list { font-size: 14px; line-height: 1.8; }
+.brief-list li { list-style: none; padding-left: 20px; position: relative; }
+.brief-list li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; }
+.brief-do li::before { background: #43a047; }
+.brief-dont li::before { background: #e53935; }
+
+/* Action items */
+.action-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f0; font-size: 15px; }
+.action-item:last-child { border-bottom: none; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #fff; min-width: 30px; text-align: center; }
+.tag-p0 { background: #e53935; }
+.tag-p1 { background: #fb8c00; }
+.tag-p2 { background: #9e9e9e; }
+.action-desc { flex: 1; }
+.action-target { color: #888; font-size: 13px; }
+
+/* Holdings */
+.holding-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f0; }
+.holding-item:last-child { border-bottom: none; }
+.holding-left { }
+.holding-name { font-weight: 600; font-size: 15px; }
+.holding-meta { font-size: 13px; color: #888; margin-top: 2px; }
+.holding-right { text-align: right; font-size: 14px; color: #666; max-width: 50%; }
+.loss { color: #e53935; font-weight: 600; }
+.gain { color: #43a047; font-weight: 600; }
+
+/* Footer */
+.footer { text-align: center; padding: 24px 0; font-size: 13px; color: #aaa; }
+
+/* Market temp */
+.market-temp { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 14px; background: #fff3e0; color: #e65100; margin-bottom: 12px; }
+
+@media (max-width: 700px) {
+  .workflow-grid { grid-template-columns: repeat(2, 1fr); }
+  .brief-grid { grid-template-columns: 1fr; }
+  .container { padding: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">YMOS | 投资操作系统</div>
+  <div class="topbar-right">2026-04-12 周日</div>
+</div>
+
+<!-- Status -->
+<div class="card">
+  <div class="status-row">
+    <div class="status-left">
+      <div class="status-icon">🟡</div>
+      <div>
+        <div class="status-text">有待确认项</div>
+        <div class="status-sub">2 个策略建议 + 3 个调研建议待执行</div>
+      </div>
+    </div>
+    <div class="status-right">
+      <div class="status-num">8</div>
+      <div class="status-label">只持仓</div>
+    </div>
+  </div>
+</div>
+
+<!-- Workflow -->
+<div class="card">
+  <h2>每日工作流</h2>
+  <div class="workflow-grid">
+    <div class="step step-done">
+      <div class="step-icon">✅</div>
+      <div class="step-name">市场洞察</div>
+      <div class="step-status">今天已完成</div>
+    </div>
+    <div class="step step-done">
+      <div class="step-icon">✅</div>
+      <div class="step-name">投资雷达</div>
+      <div class="step-status">今天已完成</div>
+    </div>
+    <div class="step step-done">
+      <div class="step-icon">✅</div>
+      <div class="step-name">策略分析</div>
+      <div class="step-status">日志已生成（待交易日执行）</div>
+    </div>
+    <div class="step step-done">
+      <div class="step-icon">✅</div>
+      <div class="step-name">持仓收口</div>
+      <div class="step-status">今天已完成</div>
+    </div>
+  </div>
+  <div class="workflow-progress">已完成 4/4</div>
+</div>
+
+<!-- Strategic Briefing -->
+<div class="card">
+  <h2>战略简报</h2>
+  <div class="market-temp">Chaos (混沌) — 美伊和谈破裂，地缘风险再度升级</div>
+  <p style="font-size:15px;color:#555;margin-bottom:16px;">核心看点：美伊和谈崩盘周一承压 | 霍尔木兹海峡博弈白热化 | AI 产业链逆势扩张</p>
+  <table>
+    <thead>
+      <tr><th>信号类型</th><th>核心主题</th><th>信号解读</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>🔴 高影响异常</td><td>美伊和谈破裂</td><td>伊朗拒绝弃核，停火崩塌风险骤升，周一 Risk Off</td></tr>
+      <tr><td>🔴 高影响异常</td><td>霍尔木兹通行危机</td><td>超级油轮掉头 + 美军扫雷，沙特管道复产部分对冲</td></tr>
+      <tr><td>🟡 主题收敛</td><td>全球能源短缺链式反应</td><td>马来西亚/日本/澳洲/赞比亚同时告急</td></tr>
+      <tr><td>🟡 认知温差</td><td>AI 信贷逆势扩张</td><td>产业 CapEx 完全脱钩于地缘冲击</td></tr>
+      <tr><td>🔵 深度基石</td><td>TurboQuant Jevons 悖论</td><td>更高效 AI → 更多应用 → 更大半导体需求</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Morning Brief -->
+<div class="card">
+  <h2>晨会速览</h2>
+  <div class="brief-grid">
+    <div class="brief-do">
+      <div class="brief-title">今天必须做的事</div>
+      <ul class="brief-list">
+        <li>周一开盘观察前 30 分钟市场反应</li>
+        <li>确认 ETF 实际价格并更新状态机</li>
+        <li>跑 `持有怎么看 000063`（中兴通讯反弹 +10.9%）</li>
+        <li>跑 `持有怎么看 002241`（歌尔股份反弹 +10.3%）</li>
+      </ul>
+    </div>
+    <div class="brief-dont">
+      <div class="brief-title">今天不要做的事</div>
+      <ul class="brief-list">
+        <li>不要在开盘前 30 分钟追买任何标的</li>
+        <li>不要因反弹就认为拐点已到（仍在 Chaos）</li>
+        <li>不要忽略和谈破裂的冲击（可能跳空低开）</li>
+        <li>不要在地缘不确定时加仓</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Action Items -->
+<div class="card">
+  <h2>需要你做的事</h2>
+  <div class="action-item">
+    <span class="tag tag-p0">P0</span>
+    <span class="action-desc">周一开盘前 30 分钟不做操作，观察和谈破裂影响</span>
+    <span class="action-target">全部持仓</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p1">P1</span>
+    <span class="action-desc">跑 <code>持有怎么看 000063</code>（3日涨 +10.9%）</span>
+    <span class="action-target">中兴通讯</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p1">P1</span>
+    <span class="action-desc">跑 <code>持有怎么看 002241</code>（3日涨 +10.3%）</span>
+    <span class="action-target">歌尔股份</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p2">P2</span>
+    <span class="action-desc">跑 <code>调研一下 603986</code>（存储龙头，景气度多维验证）</span>
+    <span class="action-target">兆易创新</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p2">P2</span>
+    <span class="action-desc">跑 <code>调研一下 002156</code>（封测方向，涨幅 10.9%）</span>
+    <span class="action-target">通富微电</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p2">P2</span>
+    <span class="action-desc">跑 <code>调研一下 600732</code>（光伏电池，限产呼吁）</span>
+    <span class="action-target">爱旭股份</span>
+  </div>
+  <div class="action-item">
+    <span class="tag tag-p2">P2</span>
+    <span class="action-desc">更新 6 只 ETF 实际价格</span>
+    <span class="action-target">ETF</span>
+  </div>
+</div>
+
+<!-- Holdings -->
+<div class="card">
+  <h2>持仓一览</h2>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">广发恒生科技 <span style="color:#888;font-weight:400">513380</span></div>
+      <div class="holding-meta">卫星仓 · 待P2 · 50,600股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-19.4%</span> · 中台关系缓和利好</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">半导体ETF南方 <span style="color:#888;font-weight:400">159325</span></div>
+      <div class="holding-meta">卫星仓 · 待P2 · 19,000股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-5.6%</span> · AI半导体逻辑持续强化</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">科创50ETF <span style="color:#888;font-weight:400">588870</span></div>
+      <div class="holding-meta">卫星仓 · 待P2 · 16,300股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-5.7%</span> · A股韧性+两岸缓和</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">港股创新药ETF <span style="color:#888;font-weight:400">159567</span></div>
+      <div class="holding-meta">观察仓 · 待P2 · 7,400股</div>
+    </div>
+    <div class="holding-right"><span class="gain">+3.9%</span> · 无重大事件</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">光伏ETF <span style="color:#888;font-weight:400">516290</span></div>
+      <div class="holding-meta">观察仓 · 待P2 · 3,000股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-9.5%</span> · 限产呼吁+能源安全</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">沪深300ETF万家 <span style="color:#888;font-weight:400">159393</span></div>
+      <div class="holding-meta">观察仓 · 待P2 · 1,000股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-1.9%</span> · 大盘韧性</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">中兴通讯 <span style="color:#888;font-weight:400">000063</span></div>
+      <div class="holding-meta">卫星仓 · 待P2 · 600股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-10.3%</span> · 3日涨+10.9%，建议评估</div>
+  </div>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-name">歌尔股份 <span style="color:#888;font-weight:400">002241</span></div>
+      <div class="holding-meta">观察仓 · 待P2 · 200股</div>
+    </div>
+    <div class="holding-right"><span class="loss">-22.2%</span> · 3日涨+10.3%，建议评估</div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">YMOS Dashboard · 数据截至 2026-04-12 18:50 · 价格为 4/10 收盘（周日非交易日）</div>
+
+</div>
+</body>
+</html>
