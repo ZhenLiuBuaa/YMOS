@@ -30,6 +30,20 @@
 
 ---
 
+## 自动化调度（本地 crontab）
+
+| 任务 | 时间 | 说明 |
+|:---|:---|:---|
+| 每日四步分析 | 交易日 10:28 | Claude CLI 跑全流程 + 微信推送 |
+| 盘中异动监控 | 交易日每 30 分钟（9:30-15:00） | `Eyes/scripts/monitor_anomaly.py`，±5% 触发 Claude 分析 + 微信 |
+
+- **异动监控脚本**：`Eyes/scripts/monitor_anomaly.py`，使用 Yahoo Finance（免费无限制），不消耗 Tushare/Finnhub 配额
+- **API 配额约束**：Tushare 500次/分钟（仅日终雷达用）、Finnhub 60次/分钟（当前未消耗）、Yahoo 无限制
+- **防重复推送**：同一标的同日只通知一次（`.alert_log.json`）
+- **日志**：`/tmp/ymos_daily.log`（每日分析）、`/tmp/ymos_monitor.log`（异动监控）
+
+---
+
 ## Agent 行为规则
 
 1. **不得静默修改** `当前关注方向与投资偏好.md`，所有修改须用户确认
